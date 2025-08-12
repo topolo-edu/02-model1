@@ -98,8 +98,18 @@ public class BoardDAO {
    * 데이터베이스 연결
    */
   private Connection getConnection() throws Exception {
-    Class.forName(DRIVER);
-    return DriverManager.getConnection(URL, USER, PASSWORD);
+    try {
+      // H2 드라이버 클래스 로드
+      Class.forName(DRIVER);
+    } catch (ClassNotFoundException e) {
+      throw new Exception("H2 데이터베이스 드라이버를 찾을 수 없습니다: " + e.getMessage(), e);
+    }
+
+    try {
+      return DriverManager.getConnection(URL, USER, PASSWORD);
+    } catch (SQLException e) {
+      throw new Exception("데이터베이스 연결에 실패했습니다: " + e.getMessage(), e);
+    }
   }
 
   /**
