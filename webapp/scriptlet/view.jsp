@@ -1,101 +1,108 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*" %>
+<%@ include file="../common/header.jsp" %>
+<%@ include file="../common/db_connection.jsp" %>
+
 <%
-// 2000년대 초반 스타일: JSP에 직접 JDBC 코드 작성
-String idParam = request.getParameter("id");
-Long id = null;
-String title = "";
-String content = "";
-String author = "";
-Timestamp createdAt = null;
+String id = request.getParameter("id");
+
+if (id == null || id.trim().isEmpty()) {
+    out.println("<div style='color: red; padding: 20px; background-color: #ffe6e6; border: 1px solid #ff9999; border-radius: 3px;'>");
+    out.println("<h3>오류</h3>");
+    out.println("<p>게시글 ID가 지정되지 않았습니다.</p>");
+    out.println("<a href='list.jsp' style='color: #0066cc;'>목록으로 돌아가기</a>");
+    out.println("</div>");
+    return;
+}
 
 Connection conn = null;
 PreparedStatement pstmt = null;
 ResultSet rs = null;
 
 try {
-    if (idParam != null && !idParam.trim().isEmpty()) {
-        id = Long.parseLong(idParam);
-        
-        // 데이터베이스 연결
-        Class.forName("org.h2.Driver");
-        conn = DriverManager.getConnection("jdbc:h2:./goorm_db", "sa", "");
-        
-        // 게시글 조회
-        String sql = "SELECT * FROM board WHERE id = ?";
-        pstmt = conn.prepareStatement(sql);
-        pstmt.setLong(1, id);
-        rs = pstmt.executeQuery();
-        
-        if (rs.next()) {
-            title = rs.getString("title");
-            content = rs.getString("content");
-            author = rs.getString("author");
-            createdAt = rs.getTimestamp("created_at");
-        }
-    }
-} catch (Exception e) {
-    out.println("<script>alert('오류 발생: " + e.getMessage() + "'); history.back();</script>");
-} finally {
-    // 리소스 정리
-    try { if (rs != null) rs.close(); } catch (SQLException e) { }
-    try { if (pstmt != null) pstmt.close(); } catch (SQLException e) { }
-    try { if (conn != null) conn.close(); } catch (SQLException e) { }
-}
+    conn = getConnection();
+    
+    // PreparedStatement 사용 - SQL 인젝션 방어
+    // ? 바인딩으로 사용자 입력을 SQL 구조와 분리
+    String sql = "SELECT * FROM board WHERE id = ?";
+    
+    pstmt = conn.prepareStatement(sql);
+    pstmt.setString(1, id);
+    rs = pstmt.executeQuery();
+    
+    if (rs.next()) {
+        String title = rs.getString("title");
+        String content = rs.getString("content");
+        String author = rs.getString("author");
+        Timestamp createdAt = rs.getTimestamp("created_at");
 %>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>게시글 보기 - Scriptlet 버전</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">게시글 보기 (1단계: Scriptlet)</h1>
+        <h2>게시글 상세보기 (PreparedStatement 버전 - SQL 인젝션 방어)</h2>
         
-        <div class="mb-4">
-            <a href="list.jsp" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
-                목록으로
-            </a>
-            <a href="../index.jsp" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                메인으로
-            </a>
+        <div style="background-color: #d4edda; border: 1px solid #c3e6cb; padding: 15px; margin-bottom: 20px; border-radius: 3px;">
+            <strong>✅ 보안 정보:</strong> 이 페이지는 PreparedStatement를 사용하여 SQL 인젝션을 방어합니다.
+            <br>사용자 입력이 SQL 구조와 분리되어 악성 코드 실행이 불가능합니다.
         </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6">
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">번호</label>
-                    <div class="text-lg text-gray-900"><%= id != null ? id : "" %></div>
+        
+        <div style="border: 1px solid #ddd; padding: 20px; border-radius: 3px; margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;">
+                <strong>번호:</strong> <%= id %>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong>제목:</strong> <%= title %>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong>내용:</strong>
+                <div style="border: 1px solid #eee; padding: 15px; background-color: #f9f9f9; border-radius: 3px; margin-top: 5px;">
+                    <%= content %>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">제목</label>
-                    <div class="text-lg text-gray-900"><%= title %></div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">작성자</label>
-                    <div class="text-lg text-gray-900"><%= author %></div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">작성일</label>
-                    <div class="text-lg text-gray-900"><%= createdAt != null ? createdAt : "" %></div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">내용</label>
-                    <div class="text-lg text-gray-900 whitespace-pre-wrap"><%= content %></div>
-                </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong>작성자:</strong> <%= author %>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <strong>작성일:</strong> <%= createdAt %>
             </div>
         </div>
         
-        <div class="mt-6 text-sm text-gray-600">
-            <p>1단계: Scriptlet 버전 - JSP에 직접 JDBC 코드 작성</p>
-            <p>특징: 데이터 조회, HTML 출력, 비즈니스 로직이 모두 JSP에 섞여있음</p>
+        <div style="text-align: center;">
+            <a href="list.jsp" style="background-color: #666; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px;">목록으로</a>
+            <a href="write.jsp" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; margin-left: 10px;">글쓰기</a>
         </div>
-    </div>
-</body>
-</html>
+        
+        <div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 3px;">
+            <h4>✅ 보안 정보</h4>
+            <p>이 페이지는 PreparedStatement를 사용하여 SQL 인젝션을 방어합니다.</p>
+            <p><strong>실행된 SQL:</strong> <code><%= sql %></code></p>
+            <p>사용자 입력이 ? 바인딩으로 안전하게 처리되어 악성 코드 실행이 불가능합니다.</p>
+            
+            <h5>보안 테스트:</h5>
+            <p>다음과 같은 악성 입력을 시도해보세요:</p>
+            <ul>
+                <li><code>?id=1; DROP TABLE board; --</code> (안전하게 처리됨)</li>
+                <li><code>?id=1 UNION SELECT 1,2,3,4 FROM information_schema.tables --</code> (안전하게 처리됨)</li>
+                <li><code>?id=1 OR 1=1 --</code> (안전하게 처리됨)</li>
+            </ul>
+            <p>PreparedStatement는 이러한 입력을 데이터로만 처리하여 SQL 구조를 변경할 수 없습니다.</p>
+        </div>
+<%
+    } else {
+        out.println("<div style='color: red; padding: 20px; background-color: #ffe6e6; border: 1px solid #ff9999; border-radius: 3px;'>");
+        out.println("<h3>게시글을 찾을 수 없습니다</h3>");
+        out.println("<p>ID: " + id + "인 게시글이 존재하지 않습니다.</p>");
+        out.println("<a href='list.jsp' style='color: #0066cc;'>목록으로 돌아가기</a>");
+        out.println("</div>");
+    }
+    
+} catch (Exception e) {
+    out.println("<div style='color: red; padding: 20px; background-color: #ffe6e6; border: 1px solid #ff9999; border-radius: 3px;'>");
+    out.println("<h3>오류 발생</h3>");
+    out.println("<p>데이터베이스 연결 또는 쿼리 실행 중 오류가 발생했습니다.</p>");
+    out.println("<p>오류 내용: " + e.getMessage() + "</p>");
+    out.println("<a href='list.jsp' style='color: #0066cc;'>목록으로 돌아가기</a>");
+    out.println("</div>");
+    e.printStackTrace();
+} finally {
+    closeResources(conn, pstmt, rs);
+}
+%>
+
+<%@ include file="../common/footer.jsp" %>

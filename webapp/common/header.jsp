@@ -62,8 +62,7 @@
     </div>
     
     <div class="nav">
-        <a href="<%= request.getContextPath() %>/statement/list.jsp">Statement 버전</a>
-        <a href="<%= request.getContextPath() %>/prepared/list.jsp">PreparedStatement 버전</a>
+        <a href="<%= request.getContextPath() %>/statement/list.jsp">scriptlet Statement 버전</a>
         <a href="<%= request.getContextPath() %>/index.jsp">홈</a>
     </div>
     
@@ -71,8 +70,8 @@
         <div class="version-info">
             <strong>현재 접속 경로:</strong> 
             <span style="color: #0066cc;">
-                <%= request.getRequestURI().contains("/statement/") ? "Statement 버전 (SQL 인젝션 취약)" : 
-                    request.getRequestURI().contains("/prepared/") ? "PreparedStatement 버전 (SQL 인젝션 방어)" : "홈" %>
+                <%= request.getRequestURI().contains("/statement/") ? "scriptlet Statement 버전 (SQL 인젝션 취약)" : 
+                    request.getRequestURI().contains("/scriptlet/") ? "scriptlet PreparedStatement 버전 (SQL 인젝션 방어)" : "홈" %>
             </span>
         </div>
         

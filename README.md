@@ -13,7 +13,12 @@
 │       ├── Board.java          # Board VO 클래스
 │       └── BoardDAO.java       # Board DAO 클래스
 ├── webapp/
-│   ├── scriptlet/              # 1단계: Scriptlet 버전
+│   ├── scriptlet/              # 1단계: Scriptlet prepareStatement버전
+│   │   ├── list.jsp
+│   │   ├── write.jsp
+│   │   ├── write_process.jsp
+│   │   └── view.jsp
+│   ├── statement/              # 1단계: Scriptlet statement 버전
 │   │   ├── list.jsp
 │   │   ├── write.jsp
 │   │   ├── write_process.jsp
@@ -39,6 +44,8 @@
 
 ### 1단계: Scriptlet (스크립틀릿)
 
+  1-1. prepareStatement
+
 - **특징**: JSP에 직접 JDBC 코드 작성
 - **용도**: 2000년대 초반의 전형적인 개발 방식 이해
 - **접근**: `http://localhost:8080/scriptlet/list.jsp`
@@ -46,12 +53,38 @@
   ```jsp
   <%
   // JSP에 직접 JDBC 코드 작성
-  Class.forName("org.h2.Driver");
-  conn = DriverManager.getConnection("jdbc:h2:./goorm_db", "sa", "");
-  String sql = "SELECT * FROM board ORDER BY created_at DESC";
   pstmt = conn.prepareStatement(sql);
   rs = pstmt.executeQuery();
   %>
+  ```
+
+    1-2. statement
+
+- **특징**: JSP에 직접 JDBC 코드 작성
+- **용도**: 2000년대 초반의 전형적인 개발 방식 이해
+- **접근**: `http://localhost:8080/statement/list.jsp`
+- **코드 예시**:
+  ```jsp
+  <%
+  // JSP에 직접 JDBC 코드 작성
+    String sql = "SELECT id, title, author, created_at FROM board ORDER BY created_at DESC";
+    stmt = conn.createStatement();
+    rs = stmt.executeQuery(sql);
+  %>
+  ```
+
+      <p><strong>제목:</strong> <code>'; DROP TABLE board; --</code></p>
+    <p><strong>내용:</strong> <code>아무 내용</code></p>
+    <p><strong>작성자:</strong> <code>해커</code></p>
+
+```html
+  제목: <code>'; DROP TABLE board; --</code>
+  ```
+
+```html
+  제목: <script>alert('XSS!')</script>
+내용: <img src="x" onerror="alert('XSS!')">
+작성자: <script>alert('XSS!')</script>
   ```
 
 ### 2단계: DAO 패턴
@@ -159,8 +192,9 @@ cp ../../02-model1.war $TOMCAT_HOME/webapps/
 
 ### 3. 접속 테스트
 
-- **메인 페이지**: `http://localhost:8080/02-model1/`
-- **1단계 Scriptlet**: `http://localhost:8080/02-model1/scriptlet/list.jsp`
+- **메인 페이지**: `http://localhost:8080/`
+- **1-1단계 Scriptlet**: `http://localhost:8080/scriptlet/list.jsp`
+- **1-2단계 Scriptlet**: `http://localhost:8080/statement/list.jsp`
 - **2단계 DAO**: `http://localhost:8080/02-model1/dao/list.jsp`
 - **3단계 EL + JSTL**: `http://localhost:8080/02-model1/el/list.jsp`
 
