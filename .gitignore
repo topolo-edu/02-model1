@@ -1,1 +1,5 @@
 webapp/WEB-INF/lib/h2-2.3.232.jar
+webapp/WEB-INF/lib/jstl-1.2.jar
+webapp/WEB-INF/lib/jakarta.servlet.jsp.jstl-api-3.0.2.jar
+webapp/WEB-INF/classes/io/goorm/backend/Board.class
+webapp/WEB-INF/classes/io/goorm/backend/BoardDAO.class

@@ -40,6 +40,15 @@
 └── build.md                    # 빌드 가이드
 ```
 
+
+
+#### H2 JDBC 드라이버 복사
+
+- `h2-2.1.214.jar` 파일을 `WEB-INF/lib/` 폴더에 복사
+
+**참고**: H2 JDBC 드라이버는 [H2 Database 공식 사이트](http://www.h2database.com/)에서 다운로드 가능합니다.
+
+
 ## 🚀 세 단계 비교
 
 ### 1단계: Scriptlet (스크립틀릿)
@@ -73,12 +82,10 @@
   %>
   ```
 
-      <p><strong>제목:</strong> <code>'; DROP TABLE board; --</code></p>
-    <p><strong>내용:</strong> <code>아무 내용</code></p>
-    <p><strong>작성자:</strong> <code>해커</code></p>
-
 ```html
-  제목: <code>'; DROP TABLE board; --</code>
+제목: '; DROP TABLE board; --
+내용: 아무 내용
+작성자: 해커
   ```
 
 ```html
@@ -105,6 +112,30 @@
   }
   %>
   ```
+
+
+#### Servlet API 라이브러리 클래스패스 설정
+
+##### 방법 1: 환경변수로 클래스패스 설정 (권장)
+
+터미널에서 한 번만 설정하면 반복 컴파일 시 편리합니다:
+
+```bash
+# Windows (톰캣 경로는 실제 설치 경로로 수정)
+set CLASSPATH=C:\apache-tomcat-9.0.xx\lib\servlet-api.jar;C:\apache-tomcat-9.0.xx\lib\jsp-api.jar;
+
+# Mac/Linux (톰캣 경로는 실제 설치 경로로 수정)
+export CLASSPATH=/path/to/apache-tomcat-9.0.xx/lib/servlet-api.jar:/path/to/apache-tomcat-9.0.xx/lib/jsp-api.jar:
+```
+
+설정 후 간단하게 컴파일:
+
+```cmd
+
+javac -d "webapp/WEB-INF/classes" "src/io/goorm/backend/Board.java"
+javac -d "webapp/WEB-INF/classes" "src/io/goorm/backend/BoardDAO.java"
+
+```  
 
 ### 3단계: EL + JSTL
 
@@ -217,3 +248,8 @@ cp ../../02-model1.war $TOMCAT_HOME/webapps/
 - **JSTL**: [JSTL Documentation](https://jakarta.ee/specifications/tags/1.2/)
 - **Model 1**: [Java Web Architecture](https://en.wikipedia.org/wiki/Model_1)
 - **H2 Database**: [H2 Database](http://www.h2database.com/)
+
+
+```
+set CLASSPATH=%CLASSPATH%;.\webapp\WEB-INF\classes
+```

@@ -4,7 +4,7 @@
 <%!
 // 데이터베이스 연결 정보
 private static final String DRIVER = "org.h2.Driver";
-private static final String URL = "jdbc:h2:file:D:/devEnv/h2/data/goorm_db;AUTO_SERVER=TRUE";
+private static final String URL = "jdbc:h2:file:h2/data/goorm_db;AUTO_SERVER=TRUE";
 private static final String USER = "sa";
 private static final String PASSWORD = "";
 
